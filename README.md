@@ -197,10 +197,10 @@ machine with a desktop you never need any of this.
    cloudflared tunnel --url http://127.0.0.1:8080
    ```
 
-   Or let ByteBalance make the tunnel for you: **Connect to ByteBalance**
+   Or let ByteBalanceTech make the tunnel for you: **Connect to ByteBalance**
    in the window, or `enroll --email you@example.com` on the command
    line (Windows and Linux). See
-   [Connecting to ByteBalance](docs/reference/bytebalance.md).
+   [Connecting to ByteBalanceTech](docs/reference/bytebalance.md).
 
 5. **Confirm the whole path.** `/health` needs no key, so it is the
    first thing to try:
@@ -331,7 +331,7 @@ the conventions a pull request is expected to follow.
 | [docs/developers/architecture.md](docs/developers/architecture.md) | How the projects fit together, and where a change belongs |
 | [docs/decisions/](docs/decisions/) | Why the project is the way it is — the reasoning a rebuild cannot re-derive |
 
-ByteBridge is a standalone product, with ByteBalance as an optional
+ByteBridge is a standalone product, with ByteBalanceTech as an optional
 integration. That is
 [decided, and the reasoning is written down](docs/decisions/0001-standalone-product.md);
 the roadmap follows from it.
@@ -357,7 +357,7 @@ connections of whoever is running it.
 | `EngineAndSecretsTests` | The engine column and secret protection together: a PostgreSQL password still wrapped, a pre-engine file migrating both, and a row naming an engine this build lacks still reading. |
 | `PostgreSqlIntegrationTests` | PostgreSQL end to end against a real server: types, NULLs, parameter binding, the row cap, the engine refusing an INSERT and a second statement, sequences untouched, and `/execute` both ways. |
 | `CliTests` | The Server Core commands: status, on and off, the port, showing and replacing the key, and adding, enabling, disabling and removing a database. |
-| `EnrollmentApiTests`, `EnrollmentFlowTests`, `EnrollmentCommandsTests`, `EnrollmentAddressTests` | Connecting to ByteBalance: the control plane's endpoints and status codes, the flow from request to approval, the commands, and which addresses are accepted. |
+| `EnrollmentApiTests`, `EnrollmentFlowTests`, `EnrollmentCommandsTests`, `EnrollmentAddressTests` | Connecting to ByteBalanceTech: the control plane's endpoints and status codes, the flow from request to approval, the commands, and which addresses are accepted. |
 | `EnrollmentConnectorTests` | Installing and removing the `cloudflared` connector on both systems: `sc.exe` on Windows, `systemctl` and a root-only token file on Linux, and the token never appearing in an error. |
 | `CloudflareSettingsTests`, `CloudflareAccessValidatorTests`, `OAuthLoginTests`, `EdgeAccessTests` | Cloudflare login and Access: the settings, validating the token against Cloudflare's real key format, the login redirects, and "only requests that came through Access". |
 | `SecretProtectionTests` | The passwords and API key wrapped at rest: round trip, files from before the wrapping, no double wrapping. |
@@ -458,6 +458,22 @@ To test the packaging without publishing anything, run the **Release**
 workflow manually from the Actions tab. It builds the same installers
 and Linux packages, prints the release body it would have used, and
 leaves the files as workflow artifacts — no tag, no release.
+
+## Byte Balance Technology projects
+
+ByteBridge is one of eight projects from Byte Balance Technology. Every
+product is named `Byte<Name>`, and its repository has the same name.
+
+| Project | What it is |
+| --- | --- |
+| [ByteBridge](https://github.com/kenanwahbeh/ByteBridge) | HTTP gateway for a customer's databases (this repository) |
+| [ByteHousing](https://github.com/kenanwahbeh/ByteHousing) | Residential associations system |
+| [ByteBalanceTech](https://github.com/kenanwahbeh/ByteBalanceTech) | The main site |
+| [ByteGuard](https://github.com/kenanwahbeh/ByteGuard) | WireGuard management |
+| [ByteBill](https://github.com/kenanwahbeh/ByteBill) | Billing system |
+| [ByteFetch](https://github.com/kenanwahbeh/ByteFetch) | Telegram bot that fetches anything sent to it, using AI |
+| [ByteStore](https://github.com/kenanwahbeh/ByteStore) | Online store |
+| [ByteReport](https://github.com/kenanwahbeh/ByteReport) | Business reporting (formerly Noport) |
 
 ## Support the project
 
