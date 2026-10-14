@@ -142,7 +142,7 @@ reaches this machine.
 
 ## Locking the tunnel to just you
 
-A machine connected through [ByteBalance](bytebalance.md) already has this: its
+A machine connected through [ByteBalanceTech](bytebalance.md) already has this: its
 tunnel sits behind an Access application that admits only the owner's email, and
 the gateway itself refuses requests from Cloudflare that lack the Access token
 (`oauth edge`). The rest of this section is for a tunnel you made yourself.

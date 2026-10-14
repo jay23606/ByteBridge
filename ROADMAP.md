@@ -2,7 +2,7 @@
 
 What ByteBridge is for is decided in
 [ADR 0001](docs/decisions/0001-standalone-product.md): **a standalone
-product, with ByteBalance as an optional integration.** This page is
+product, with ByteBalanceTech as an optional integration.** This page is
 the working list that follows from it. Where an item has a reason
 behind it, that reason is in a decision record, not here.
 
