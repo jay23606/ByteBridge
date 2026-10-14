@@ -1,8 +1,8 @@
-# Connecting to ByteBalance
+# Connecting to ByteBalanceTech
 
-ByteBridge only listens on `127.0.0.1`. To let a ByteBalance storefront read
-from this machine it needs a Cloudflare Tunnel, and ByteBalance creates that
-tunnel for you: you ask, ByteBalance approves, and the connector is installed
+ByteBridge only listens on `127.0.0.1`. To let a ByteBalanceTech storefront read
+from this machine it needs a Cloudflare Tunnel, and ByteBalanceTech creates that
+tunnel for you: you ask, ByteBalanceTech approves, and the connector is installed
 here. Nothing on your router or firewall changes.
 
 Use whichever is convenient; they run the same code.
@@ -15,15 +15,15 @@ Use whichever is convenient; they run the same code.
 
 ## What happens
 
-1. `enroll` remembers a fresh secret on this machine, then asks ByteBalance for a
-   tunnel. Only a hash of the secret is sent. ByteBalance emails its approver.
-2. Once approved, ByteBalance creates a tunnel for this machine and puts a
+1. `enroll` remembers a fresh secret on this machine, then asks ByteBalanceTech for a
+   tunnel. Only a hash of the secret is sent. ByteBalanceTech emails its approver.
+2. Once approved, ByteBalanceTech creates a tunnel for this machine and puts a
    Cloudflare Access application in front of it. **Only the email you gave can
    get through**; Cloudflare mails that address a one-time code to sign in.
 3. This machine collects the tunnel's token with the secret from step 1. Before
    the tunnel comes up, the gateway is told to check the Access token itself
    (see below), then `cloudflared service install` runs with the token.
-4. The gateway's API key is sent to ByteBalance, encrypted at rest there, so the
+4. The gateway's API key is sent to ByteBalanceTech, encrypted at rest there, so the
    storefront can call this gateway.
 
 Each step can be repeated. If a run is interrupted, or you close the window,
@@ -39,7 +39,7 @@ enroll --email <you@example.com> [--name <name>] [--server <url>]
        [--timeout <minutes>] [--no-wait] [--replace-connector]
 claim  [--timeout <minutes>] [--replace-connector]
 enrollment                 the enrolment, the connector, whether the key is shared
-sync-key                   send the current API key to ByteBalance again
+sync-key                   send the current API key to ByteBalanceTech again
 unenroll                   remove the connector and forget the enrolment
 ```
 
@@ -47,14 +47,14 @@ unenroll                   remove the connector and forget the enrolment
 ("request sent, waiting"), which scripts can tell apart from a failure.
 
 - `--email` is required and **cannot be changed** by running `enroll` again. Only
-  the ByteBalance administrator removing the device lets a machine start over.
+  the ByteBalanceTech administrator removing the device lets a machine start over.
 - `--server` defaults to `https://bytebalancetech.com` (or `BYTEBALANCE_URL`).
   Only `https://` is accepted, or `http://` to this machine for development.
 - An existing Cloudflare connector service is **never replaced by surprise**: it
   may be carrying another tunnel. Pass `--replace-connector` only when that is
   intended.
-- Rotating the key with `key new` sends the new key to ByteBalance straight
-  away. If ByteBalance cannot be reached, the rotation still succeeds and a
+- Rotating the key with `key new` sends the new key to ByteBalanceTech straight
+  away. If ByteBalanceTech cannot be reached, the rotation still succeeds and a
   warning says to run `sync-key`; until then the storefront is locked out.
 
 ## The gateway checks the Access token too
@@ -82,12 +82,12 @@ In the settings file (`C:\ProgramData\ByteBridge\bytebridge.db`, readable by
 administrators and the service only), under `Enrollment.`: the server, a device
 key, the **claim secret**, your email, the phase and the tunnel's hostname. The
 claim secret is as sensitive as the API key: with it someone could replace the
-key ByteBalance holds for this gateway. The tunnel token is never stored here;
+key ByteBalanceTech holds for this gateway. The tunnel token is never stored here;
 cloudflared keeps it, as it does for every tunnel.
 
 ## Leaving
 
 `unenroll` removes the connector this enrolment installed and forgets the
-enrolment here. It cannot tell ByteBalance: the device stays there until its
+enrolment here. It cannot tell ByteBalanceTech: the device stays there until its
 administrator removes it, and until then this machine cannot enrol again,
 because the secret that proves it is the one just deleted.

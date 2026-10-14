@@ -118,10 +118,10 @@ The gateway binds to loopback only, as on Windows. Run `cloudflared`
 on the same machine and point it at `http://127.0.0.1:8080`; see
 [Cloudflare Tunnel](../reference/cloudflare-tunnel.md).
 
-## Connecting to ByteBalance
+## Connecting to ByteBalanceTech
 
 `bytebridge enroll --email you@example.com` works as on Windows: it asks
-ByteBalance for a tunnel, waits for approval, then installs the
+ByteBalanceTech for a tunnel, waits for approval, then installs the
 connector, which on Linux is the `cloudflared` systemd unit. `claim`
 and `unenroll` work the same way, and `bytebridge enrollment` shows the
 state.
