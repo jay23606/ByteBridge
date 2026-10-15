@@ -113,7 +113,7 @@ sudo apt install bytebridge
 ```
 
 The key's fingerprint is on
-[the repository's page](https://kenanwahbeh.github.io/ByteBridge/).
+[the repository's page](https://kenanwahbeh.github.io/ByteBridge/apt/).
 Each release also carries the `.deb` itself and a `linux-x64` tarball
 with an `install.sh` for other distributions, with checksums in
 `SHA256SUMS-linux.txt` and the same build attestation as the Windows
