@@ -40,7 +40,7 @@ sudo apt install bytebridge
 The repository is rebuilt after every release from the `.deb` files
 attached to it, and only after each one's build attestation checks
 out. The key's fingerprint is on
-[the repository's page](https://kenanwahbeh.github.io/ByteBridge/);
+[the repository's page](https://kenanwahbeh.github.io/ByteBridge/apt/);
 compare it with `gpg --show-keys /etc/apt/keyrings/bytebridge.asc`.
 
 The `.deb` and the tarball below are also on the

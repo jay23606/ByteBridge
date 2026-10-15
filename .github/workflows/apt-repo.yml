@@ -6,13 +6,21 @@ name: APT repository
 #
 #   https://kenanwahbeh.github.io/ByteBridge/
 #
-# It runs after every successful Release from a tag, and rebuilds the
-# whole repository from the .deb files attached to the most recent
-# releases. Nothing is kept between runs: the releases are the source
-# of truth, and Pages is only a copy of them.
+# The same deployment carries the product site from website/: its pages
+# at the root, the apt repository's own page (with the key fingerprint)
+# at /apt/. Pages serves one site per repository and every deployment
+# replaces the last, so the two can only be published together; a
+# separate site workflow would wipe the apt repository, and the other
+# way round.
 #
-# A pull request that touches this workflow or the Linux packaging, and
-# a manual run off main, build and test the repository without
+# It runs after every successful Release from a tag, and after a push to
+# main that changes the site, and rebuilds the whole repository from the
+# .deb files attached to the most recent releases. Nothing is kept
+# between runs: the releases are the source of truth, and Pages is only
+# a copy of them.
+#
+# A pull request that touches this workflow, the Linux packaging or the
+# site, and a manual run off main, build and test the repository without
 # publishing it. When no release carries a .deb yet, one is built from
 # the checked-out commit, so the whole path is tested before the first
 # release that has one.
@@ -22,10 +30,18 @@ on:
     workflows: [Release]
     types: [completed]
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - website/**
+      - scripts/build-website.sh
+      - scripts/linux/apt-index.html
   pull_request:
     paths:
       - .github/workflows/apt-repo.yml
       - scripts/linux/**
+      - scripts/build-website.sh
+      - website/**
       - service/**
 
 permissions:
@@ -43,6 +59,7 @@ jobs:
     if: >
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'pull_request' ||
+      github.event_name == 'push' ||
       (github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
@@ -142,9 +159,10 @@ jobs:
         run: |
           scripts/linux/build-apt-repo.sh debs site "$FINGERPRINT"
 
-          # The page a browser lands on, with the commands to add the
-          # repository and the fingerprint to check the key against.
-          sed "s/{{FINGERPRINT}}/$FINGERPRINT/" scripts/linux/apt-index.html > site/index.html
+          # The repository's own page, with the commands to add it and
+          # the fingerprint to check the key against.
+          mkdir -p site/apt
+          sed "s/{{FINGERPRINT}}/$FINGERPRINT/" scripts/linux/apt-index.html > site/apt/index.html
 
           find site -type f | sort
           cat site/dists/stable/main/binary-amd64/Packages
@@ -173,6 +191,14 @@ jobs:
             sleep 2
           done
           curl -fsS http://127.0.0.1:8080/health
+
+      # The product pages go in last, beside the repository. The script
+      # refuses any path the repository uses, so a page can never
+      # replace the key or an index apt reads.
+      - name: Add the product site
+        run: |
+          scripts/build-website.sh site
+          find site -type f | sort
 
       - name: Upload the site
         uses: actions/upload-pages-artifact@v5

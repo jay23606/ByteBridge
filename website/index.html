@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ByteBridge — بوابة HTTP محمية لقواعد بياناتك</title>
+<meta name="description" content="يضع ByteBridge واجهة HTTP صغيرة محمية بمفتاح أمام قواعد بيانات Firebird وPostgreSQL، لتصل إليها عبر نفق Cloudflare دون فتح أي منفذ. يعمل على Windows وLinux.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="alternate" hreflang="ar" href="./">
+<link rel="alternate" hreflang="en" href="en/">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="favicon.svg" alt="" width="28" height="28">ByteBridge</a>
+    <nav class="nav" aria-label="أقسام الصفحة">
+      <a href="#features">الميزات</a>
+      <a href="#install">التثبيت</a>
+      <a href="#quick-start">البداية السريعة</a>
+      <a href="#api">الـ API</a>
+      <a href="#cli">سطر الأوامر</a>
+      <a href="#security">الأمان</a>
+      <a class="lang" href="en/" hreflang="en" lang="en">English</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">مجاني · Windows وLinux · Firebird وPostgreSQL</p>
+      <h1>ByteBridge</h1>
+      <p class="lead">واجهة HTTP صغيرة محمية بمفتاح أمام قواعد بياناتك، تصل إليها من خارج الجهاز عبر نفق مثل Cloudflare Tunnel، دون أن تكشف منفذ قاعدة البيانات أو تغيّر إعدادات الراوتر.</p>
+      <p>يعمل على Windows خدمةً مع لوحة تحكم، وعلى Linux خدمةَ systemd تديرها من الطرفية. أضف اتصالات قواعد بياناتك، واجعل ما تريده منها متصلاً، فتقدّمها البوابة بصيغة JSON على العنوان <code>127.0.0.1</code>.</p>
+      <div class="actions">
+        <a class="btn primary" href="https://github.com/kenanwahbeh/ByteBridge/releases/latest">نزّل أحدث إصدار</a>
+        <a class="btn" href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/ar/README.md">الدليل بالعربية</a>
+        <a class="btn" href="https://github.com/kenanwahbeh/ByteBridge">الشيفرة على GitHub</a>
+      </div>
+    </div>
+    <figure class="shot">
+      <img src="assets/screens/ar/6-all-good.svg" alt="لوحة تحكم ByteBridge: سطر الحالة يقول يعمل والخدمة: تعمل، وبطاقة قاعدة بيانات المبيعات متصلة." width="940" height="290">
+      <figcaption>لوحة التحكم على Windows: البوابة تجيب، وقاعدة البيانات متصلة.</figcaption>
+    </figure>
+  </div>
+</div>
+
+<section id="how">
+  <div class="wrap">
+    <h2>كيف يعمل</h2>
+    <ol class="flow" aria-label="مسار الطلب">
+      <li class="node">تطبيقك<small>أو المتصفح</small></li>
+      <li class="edge"><code>HTTPS + X-API-Key</code></li>
+      <li class="node">Cloudflare<small>الشبكة الطرفية</small></li>
+      <li class="edge">نفق صادر</li>
+      <li class="node">cloudflared<small>على جهازك</small></li>
+      <li class="edge"><code>127.0.0.1:8080</code></li>
+      <li class="node here">ByteBridge<small>البوابة</small></li>
+      <li class="edge">منفذ قاعدة البيانات</li>
+      <li class="node">قاعدة البيانات<small>Firebird أو PostgreSQL</small></li>
+    </ol>
+    <p class="intro">لا شيء يستمع على شبكتك المحلية، ولا يُفتح أي منفذ وارد: يتصل <code>cloudflared</code> بـ Cloudflare من داخل الجهاز، والبوابة نفسها لا تستمع إلا على عنوان الحلقة المحلية (loopback).</p>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>الميزات</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>يعمل خدمةً في الخلفية</h3>
+        <p>خدمة Windows باسم <code>ByteBridge</code>، أو وحدة systemd باسم <code>bytebridge</code>. تبدأ مع تشغيل الجهاز وتخدم دون أن يسجّل أحد الدخول، فإغلاق النافذة لا يوقف البوابة.</p>
+      </div>
+      <div class="card">
+        <h3>محرّكان لقواعد البيانات</h3>
+        <p>Firebird 4 (المنفذ الافتراضي 3050) وPostgreSQL (المنفذ 5432)، وكلاهما مختبَر على خادم حقيقي في CI.</p>
+      </div>
+      <div class="card">
+        <h3>للقراءة فقط افتراضياً</h3>
+        <p>لا يقبل <code>/query</code> إلا <code>SELECT</code> أو <code>WITH</code>، ويشغّله في معاملة يجعلها محرّك قاعدة البيانات نفسه للقراءة فقط. وتبقى الكتابة عبر <code>/execute</code> متوقفة حتى يفعّل مسؤول <strong>خيارات ← السماح بالكتابة</strong>.</p>
+      </div>
+      <div class="card">
+        <h3>مفتاح API مع كل طلب</h3>
+        <p>32 بايتاً عشوائية تُولَّد عند أول تشغيل وتُقارَن بزمن ثابت. يبدّله زر <strong>مفتاح جديد</strong> دون إعادة تشغيل، ومن يرسل مفاتيح خاطئة كثيرة يُرفض بالرمز <code>429</code> لفترة.</p>
+      </div>
+      <div class="card">
+        <h3>أسرار مشفّرة على القرص</h3>
+        <p>كلمات سر قواعد البيانات ومفتاح API مشفّرة بمفتاح لا يغادر الجهاز ويُحفظ خارج مجلد البيانات: DPAPI على Windows، وملف مفتاح لا يقرؤه إلا مالكه على Linux. نسخة من مجلد البيانات وحدها لا تفتح شيئاً.</p>
+      </div>
+      <div class="card">
+        <h3>سجل لكل طلب</h3>
+        <p>يُضاف كل طلب إلى سجل الطلبات، سواء خُدم أو رُفض. تُكتب العبارة نفسها، ولا تُكتب قيم المعاملات أبداً.</p>
+      </div>
+      <div class="card">
+        <h3>تحديثات بموافقتك</h3>
+        <p>يسأل GitHub عن إصدار أحدث مرة يومياً تقريباً ويعرض شريطاً في لوحة التحكم. يتحقق <strong>حدّث الآن</strong> من ملف التثبيت مقابل checksums الإصدار، ولا يشغّله إلا بعد موافقتك. وعلى Linux يتولى <code>apt</code> التحديث.</p>
+      </div>
+      <div class="card">
+        <h3>Cloudflare Access عند الحاجة</h3>
+        <p>ضع Cloudflare Access أمام اسم النطاق لتُصادَق الطلبات على شبكة Cloudflare قبل أن تصل إلى جهازك. وإن أعددت تسجيل الدخول عبر Cloudflare في ByteBridge، فالجلسة الصالحة منه تُقبل بدل المفتاح.</p>
+      </div>
+      <div class="card">
+        <h3>نفق جاهز عند الحاجة</h3>
+        <p>اختر <strong>الاتصال بـ ByteBalance</strong> من النافذة، أو نفّذ <code>enroll</code> من سطر الأوامر، لتُنشئ ByteBalanceTech النفق لك. ByteBridge منتج مستقل، وهذا التكامل اختياري.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <h2>التثبيت</h2>
+    <p class="intro">يتطلب Windows 8.1 أو أحدث بنسخة 64 بت، أو توزيعة Linux بنسخة 64 بت مع systemd، إضافة إلى خادم Firebird 4 أو PostgreSQL يتصل به.</p>
+
+    <div class="cols">
+      <div>
+        <h3>Windows</h3>
+        <p>نزّل ملف التثبيت من <a href="https://github.com/kenanwahbeh/ByteBridge/releases/latest">أحدث إصدار</a>. كل ملفات التثبيت تثبّت البرنامج للجهاز كله، وتطلب صلاحيات المسؤول مرة واحدة.</p>
+        <div class="table">
+          <table class="stack">
+            <thead><tr><th>الملف</th><th>‎.NET</th><th>متى تستخدمه</th></tr></thead>
+            <tbody>
+              <tr><td><code>…-x64-setup.exe</code></td><td data-label=".NET">مضمَّن</td><td><strong>ابدأ من هنا.</strong> تثبيت عادي على جهاز مكتبي.</td></tr>
+              <tr><td><code>…-x64.msi</code></td><td data-label=".NET">مضمَّن</td><td>Group Policy أو Intune أو نشر آلي بسكربت.</td></tr>
+              <tr><td><code>…-x64-framework-setup.exe</code></td><td data-label=".NET">يُنزَّل</td><td>حجم أصغر بكثير؛ يثبّت برنامج الإعداد بيئة التشغيل إن لم تكن موجودة.</td></tr>
+              <tr><td><code>…-x64-framework.msi</code></td><td data-label=".NET">مطلوب</td><td>نشر آلي تُدار فيه بيئة التشغيل بشكل منفصل.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>يعرض ملفا <code>.exe</code> أيضاً تثبيت <code>cloudflared</code>. أما ربطه بنفق فيحتاج إلى رمز النفق الخاص بك.</p>
+        <p>التثبيت الصامت:</p>
+        <div class="code"><pre><code>ByteBridge-&lt;version&gt;-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART</code></pre></div>
+        <div class="code"><pre><code>msiexec /i ByteBridge-&lt;version&gt;-x64.msi /quiet /norestart</code></pre></div>
+      </div>
+
+      <div>
+        <h3>Linux (Debian وUbuntu)</h3>
+        <p>أضف مستودع apt الموقَّع مرة واحدة، وبعدها يتولى <code>apt install</code> و<code>apt upgrade</code> الباقي.</p>
+        <div class="code"><pre><code>sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://kenanwahbeh.github.io/ByteBridge/bytebridge.asc | sudo tee /etc/apt/keyrings/bytebridge.asc &gt;/dev/null
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/bytebridge.asc] https://kenanwahbeh.github.io/ByteBridge stable main" | sudo tee /etc/apt/sources.list.d/bytebridge.list
+sudo apt update
+sudo apt install bytebridge</code></pre></div>
+        <p>بصمة مفتاح التوقيع موجودة في <a href="apt/" hreflang="en">صفحة مستودع apt</a>؛ قارنها بناتج <code>gpg --show-keys /etc/apt/keyrings/bytebridge.asc</code>.</p>
+        <p>للتوزيعات الأخرى: يتضمن كل إصدار ملفاً مضغوطاً <code>linux-x64</code> فيه <code>install.sh</code>، وملف <code>.deb</code> نفسه، مع checksums في <code>SHA256SUMS-linux.txt</code>. التفاصيل في <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/getting-started/linux.md" hreflang="en">دليل Linux</a> (بالإنكليزية).</p>
+      </div>
+    </div>
+
+    <h3>تحقّق من مصدر الملف</h3>
+    <p>يحمل كل ملف في الإصدار شهادة بناء موقَّعة تبيّن أين بُني، وتتحقق منها أداة GitHub CLI قبل أن تشغّل أي شيء:</p>
+    <div class="code"><pre><code>gh attestation verify ByteBridge-&lt;version&gt;-x64-setup.exe --repo kenanwahbeh/ByteBridge</code></pre></div>
+  </div>
+</section>
+
+<section id="quick-start">
+  <div class="wrap">
+    <h2>البداية السريعة</h2>
+    <p class="intro">لست مطوّراً؟ يشرح <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/ar/README.md">الدليل المصوَّر</a> الخطوات نفسها بالصور. ومن داخل البرنامج يفتحه <strong>تعليمات ← دليل الاستخدام</strong> (أو المفتاح <kbd>F1</kbd>).</p>
+    <ol class="steps">
+      <li>
+        <h3>أضف قاعدة بيانات</h3>
+        <p>اختر <strong>ملف ← قاعدة بيانات جديدة...</strong>، واملأ الخادم والمنفذ واسم المستخدم وكلمة السر ومسار قاعدة البيانات أو اسمها المستعار، ثم اضغط <strong>اختبار الاتصال</strong> قبل الحفظ. على Linux استخدم <code>bytebridge db add</code>.</p>
+      </li>
+      <li>
+        <h3>تأكّد أنها متصلة</h3>
+        <p>الاتصال المحفوظ بعد اختبار ناجح يصبح <strong>متصل</strong> فوراً، والاتصالات المتصلة وحدها تجيب على الطلبات.</p>
+      </li>
+      <li>
+        <h3>تحقّق من البوابة وانسخ المفتاح</h3>
+        <p>يجب أن يقول سطر الحالة <strong>● يعمل</strong> و<strong>الخدمة: تعمل</strong>. افتح <strong>سيرفر ويب</strong> واضغط <strong>نسخ مفتاح API</strong>. على Linux: <code>bytebridge status</code> ثم <code>bytebridge key show</code>.</p>
+      </li>
+      <li>
+        <h3>شغّل النفق</h3>
+        <div class="code"><pre><code>cloudflared tunnel --url http://127.0.0.1:8080</code></pre></div>
+        <p>لنفق باسم ثابت على نطاقك الخاص، راجع <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/GATEWAY.md" hreflang="en">GATEWAY.md</a>.</p>
+      </li>
+      <li>
+        <h3>تأكّد من المسار كاملاً</h3>
+        <p>لا يحتاج <code>/health</code> إلى مفتاح، فابدأ به:</p>
+        <div class="code"><pre><code>curl https://&lt;your-hostname&gt;/health</code></pre></div>
+      </li>
+      <li>
+        <h3>استعلم</h3>
+        <div class="code"><pre><code>curl -X POST https://&lt;your-hostname&gt;/query \
+  -H "X-API-Key: &lt;your key&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{ "database": "Sales", "sql": "SELECT ID, NAME FROM CUSTOMERS WHERE ID = @id", "parameters": { "id": 42 } }'</code></pre></div>
+        <p>أرسل القيم في <code>parameters</code>، ولا تدمجها في نص <code>sql</code> أبداً: تُربط القيم معاملاتٍ في قاعدة البيانات، فلا يمكن لقيمة أن تصبح SQL.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section id="api">
+  <div class="wrap">
+    <h2>الـ API</h2>
+    <p class="intro">يُرسل المفتاح في الترويسة <code>X-API-Key</code>، أو بصيغة <code>Authorization: Bearer</code>.</p>
+    <div class="table">
+      <table>
+        <thead><tr><th>الطريقة</th><th>المسار</th><th>المفتاح</th><th>ماذا يفعل</th></tr></thead>
+        <tbody>
+          <tr><td><code>GET</code></td><td><code>/health</code></td><td>لا</td><td>يتحقق أن البوابة تعمل، لاختبار النفق. لا يعيد أي بيانات من قواعد البيانات.</td></tr>
+          <tr><td><code>GET</code></td><td><code>/databases</code></td><td>نعم</td><td>الاتصالات المُعدّة.</td></tr>
+          <tr><td><code>GET</code></td><td><code>/stats</code></td><td>المفتاح فقط</td><td>عدد الطلبات لكل اتصال، والإصدار العامل، وهل يوجد إصدار أحدث.</td></tr>
+          <tr><td><code>POST</code></td><td><code>/query</code></td><td>نعم</td><td>ينفّذ <code>SELECT</code> أو <code>WITH</code> ويعيد الصفوف.</td></tr>
+          <tr><td><code>POST</code></td><td><code>/execute</code></td><td>نعم</td><td>يغيّر البيانات أو البنية، فقط عندما يكون <strong>السماح بالكتابة</strong> مفعّلاً، وإلا يعيد <code>403</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>شكل الطلبات والردود، وتحويل الأنواع، ورموز الحالة، وحل المشكلات، كلها في <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/reference/api-reference.md" hreflang="en">مرجع الـ API</a> وفي <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/GATEWAY.md" hreflang="en">GATEWAY.md</a> (بالإنكليزية).</p>
+  </div>
+</section>
+
+<section id="cli">
+  <div class="wrap">
+    <h2>سطر الأوامر</h2>
+    <p class="intro">لا توجد نافذة على Linux، فتُدار كل الإعدادات بالأمر <code>bytebridge</code>. وعلى Windows Server Core يعمل ملف الخدمة التنفيذي أداةَ الإدارة نفسها: <code>ByteBridge.Service.exe &lt;command&gt;</code>. تسري التغييرات خلال ثوانٍ، دون إعادة تشغيل الخدمة.</p>
+    <div class="code"><pre><code>bytebridge status
+bytebridge db add --name Sales --server 127.0.0.1 --path /data/sales.fdb --user SYSDBA --password secret
+bytebridge key show
+bytebridge port 8080</code></pre></div>
+    <div class="table">
+      <table>
+        <thead><tr><th>الأمر</th><th>ماذا يفعل</th></tr></thead>
+        <tbody>
+          <tr><td><code>status</code></td><td>يعرض حالة البوابة وقواعد البيانات.</td></tr>
+          <tr><td><code>on</code> | <code>off</code></td><td>يشغّل البوابة أو يوقفها عن الاستماع.</td></tr>
+          <tr><td><code>port &lt;number&gt;</code></td><td>يغيّر منفذ الاستماع.</td></tr>
+          <tr><td><code>key show</code> | <code>key new</code></td><td>يعرض مفتاح API أو يستبدله.</td></tr>
+          <tr><td><code>lockout show|on|off|set</code></td><td>حدّ المفاتيح الخاطئة من الجهة نفسها.</td></tr>
+          <tr><td><code>db list|add|enable|disable|remove</code></td><td>إدارة اتصالات قواعد البيانات؛ ويختار <code>--type firebird|postgresql</code> المحرّك.</td></tr>
+          <tr><td><code>oauth show|set|on|off|edge</code></td><td>إعدادات تسجيل الدخول عبر Cloudflare Access.</td></tr>
+          <tr><td><code>enroll</code>، <code>claim</code>، <code>enrollment</code>، <code>sync-key</code>، <code>unenroll</code></td><td>الاتصال بـ ByteBalanceTech للحصول على نفق، والتراجع عنه.</td></tr>
+          <tr><td><code>update [check]|status|on|off</code></td><td>يبحث عن إصدار أحدث الآن، أو يعرض نتيجة آخر بحث، أو يشغّل البحث اليومي أو يوقفه. يبحث فقط، ولا يثبّت شيئاً أبداً.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>يعرض <code>bytebridge --help</code> القائمة كاملة.</p>
+  </div>
+</section>
+
+<section id="security">
+  <div class="wrap">
+    <h2>نموذج الأمان</h2>
+    <p class="intro">يجعل النفقُ البوابةَ قابلة للوصول من الإنترنت العام، فعامل مفتاح API معاملة كلمة سر قاعدة البيانات.</p>
+    <ul class="checks">
+      <li>كل المسارات عدا <code>/health</code> تتطلب المفتاح. يسري تبديله بزر <strong>مفتاح جديد</strong> خلال ثوانٍ، ويُرفض بعدها كل من يرسل المفتاح القديم.</li>
+      <li>لا تستمع البوابة إلا على <code>127.0.0.1</code>، وتَرفض أي طلب يزيد جسمه على 1 MB.</li>
+      <li>يرفض <code>/query</code> كل ما ليس <code>SELECT</code> أو <code>WITH</code>، ويُبقي محرّك قاعدة البيانات معاملته للقراءة فقط. وتُرفض أيضاً العبارات التي تحرّك عدّاداً (<code>GEN_ID</code> بخطوة غير 0، و<code>NEXT VALUE FOR</code>، و<code>nextval</code>، و<code>setval</code>).</li>
+      <li>ما دام <strong>السماح بالكتابة</strong> مفعّلاً، يستطيع كل من يملك المفتاح تغيير البيانات وحذفها وتغيير بنية قواعد بياناتك. اتركه متوقفاً إلا إن احتجته، وأوقفه بعد الانتهاء.</li>
+      <li>كل من يملك المفتاح يستطيع قراءة ما يستطيع مستخدم قاعدة البيانات في أي اتصال متصل قراءته. إن كانت البيانات حساسة، فضع <a href="https://developers.cloudflare.com/cloudflare-one/policies/access/" hreflang="en">Cloudflare Access</a> أمام اسم النطاق أيضاً.</li>
+      <li>مجلد البيانات مقفل: <code>C:\ProgramData\ByteBridge</code> للمسؤولين وحساب الخدمة، و<code>/var/lib/bytebridge</code> لحساب الخدمة وحده. أما صورة الجهاز الكاملة (نسخة القرص أو لقطة الجهاز الافتراضي) فتحوي البيانات ومفتاحها معاً، فعاملها معاملة كلمات السر.</li>
+    </ul>
+    <p>التفاصيل في <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/reference/security.md" hreflang="en">مرجع الأمان</a>؛ وللإبلاغ عن ثغرة راجع <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/SECURITY.md" hreflang="en">SECURITY.md</a>.</p>
+  </div>
+</section>
+
+<section id="links">
+  <div class="wrap">
+    <h2>التوثيق والروابط</h2>
+    <ul class="links">
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/releases"><strong>الإصدارات</strong><span>ملفات التثبيت وحزم Linux وchecksums</span></a></li>
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/ar/README.md"><strong>الدليل المصوَّر</strong><span>خطوة بخطوة، دون حاجة إلى خبرة تقنية</span></a></li>
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/ar/everyday-use.md"><strong>الاستخدام اليومي</strong><span>النافذة والمفتاح والخيارات</span></a></li>
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/ar/when-something-is-wrong.md"><strong>عندما تحدث مشكلة</strong><span>ماذا تعني الرسائل وماذا تفعل</span></a></li>
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/README.md" hreflang="en"><strong>التوثيق الكامل</strong><span>التثبيت والمرجع وحل المشكلات (بالإنكليزية)</span></a></li>
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/CHANGELOG.md" hreflang="en"><strong>سجل التغييرات</strong><span>ما تغيّر في كل إصدار (بالإنكليزية)</span></a></li>
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/ROADMAP.md" hreflang="en"><strong>خارطة الطريق</strong><span>ما يُعمل عليه، وما لن يُعمل عليه (بالإنكليزية)</span></a></li>
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/discussions"><strong>النقاشات</strong><span>الأسئلة والأفكار</span></a></li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>ByteBridge أحد مشاريع <a href="https://bytebalancetech.com">Byte Balance Technology</a>. هو مجاني ويبقى مجانياً، ويمكنك <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/about/support-the-project.md" hreflang="en">دعم المشروع</a> إن وجدته مفيداً.</p>
+    <p><a href="en/" hreflang="en" lang="en">This page in English</a></p>
+  </div>
+</footer>
+
+<script src="site.js"></script>
+</body>
+</html>

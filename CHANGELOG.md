@@ -13,6 +13,18 @@ file is the single source of truth for what shipped.
 
 ## [Unreleased]
 
+### Added
+
+- **A product site, in Arabic and English.** <https://kenanwahbeh.github.io/ByteBridge/>
+  now introduces ByteBridge: what it does, installing it on Windows and
+  Linux, the quick start, the API, the command line and the security
+  model. It is plain HTML from `website/`, published by the apt
+  repository workflow in the same deployment as the repository, since
+  GitHub Pages serves one site per repository. The apt repository keeps
+  its address, so machines that already use it need no change; its page
+  with the signing key's fingerprint is now at
+  <https://kenanwahbeh.github.io/ByteBridge/apt/>.
+
 ## [3.3.0] - 2026-10-11
 
 ### Added

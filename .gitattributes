@@ -1,2 +1,3 @@
 # Run on Linux, where a CR in the shebang or unit file breaks them.
 scripts/linux/* text eol=lf
+scripts/build-website.sh text eol=lf
