@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ByteBridge — an authenticated HTTP gateway for your databases</title>
+<meta name="description" content="ByteBridge puts a small, authenticated HTTP API in front of your Firebird and PostgreSQL databases, so they can be reached through Cloudflare Tunnel without opening a port. Windows and Linux.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="alternate" hreflang="ar" href="../">
+<link rel="alternate" hreflang="en" href="./">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="../favicon.svg" alt="" width="28" height="28">ByteBridge</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#features">Features</a>
+      <a href="#install">Install</a>
+      <a href="#quick-start">Quick start</a>
+      <a href="#api">API</a>
+      <a href="#cli">Command line</a>
+      <a href="#security">Security</a>
+      <a class="lang" href="../" hreflang="ar" lang="ar">العربية</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Free · Windows and Linux · Firebird and PostgreSQL</p>
+      <h1>ByteBridge</h1>
+      <p class="lead">A small, authenticated HTTP API in front of your databases, so they can be reached from outside the machine through a tunnel such as Cloudflare Tunnel — without exposing the database port or touching the router.</p>
+      <p>On Windows it runs as a service with a desktop control panel; on Linux, as a systemd service you set up from the terminal. Add your database connections, turn the ones you want Online, and the gateway serves them as JSON over <code>127.0.0.1</code>.</p>
+      <div class="actions">
+        <a class="btn primary" href="https://github.com/kenanwahbeh/ByteBridge/releases/latest">Download the latest release</a>
+        <a class="btn" href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/README.md">Documentation</a>
+        <a class="btn" href="https://github.com/kenanwahbeh/ByteBridge">Source on GitHub</a>
+      </div>
+    </div>
+    <figure class="shot">
+      <img src="../assets/screens/en/6-all-good.svg" alt="The ByteBridge control panel: the status line reads Answering and Service: running, and the Sales database card is Online." width="940" height="290">
+      <figcaption>The control panel on Windows: the gateway is answering and the database is Online.</figcaption>
+    </figure>
+  </div>
+</div>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <ol class="flow" aria-label="The path of a request">
+      <li class="node">Your app<small>or browser</small></li>
+      <li class="edge"><code>HTTPS + X-API-Key</code></li>
+      <li class="node">Cloudflare<small>edge</small></li>
+      <li class="edge">outbound tunnel</li>
+      <li class="node">cloudflared<small>your machine</small></li>
+      <li class="edge"><code>127.0.0.1:8080</code></li>
+      <li class="node here">ByteBridge<small>the gateway</small></li>
+      <li class="edge">database port</li>
+      <li class="node">Database<small>Firebird or PostgreSQL</small></li>
+    </ol>
+    <p class="intro">Nothing listens on your LAN and no inbound port is opened: <code>cloudflared</code> dials out to Cloudflare, and the gateway itself only ever binds to loopback.</p>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>Features</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Runs as a service</h3>
+        <p>A Windows service, <code>ByteBridge</code>, or a systemd unit, <code>bytebridge</code>. It starts with the machine and serves with nobody signed in, so closing the window does not take the gateway down.</p>
+      </div>
+      <div class="card">
+        <h3>Two database engines</h3>
+        <p>Firebird 4 (default port 3050) and PostgreSQL (5432). Both are tested against a real server in CI.</p>
+      </div>
+      <div class="card">
+        <h3>Read-only by default</h3>
+        <p><code>/query</code> takes only <code>SELECT</code> or <code>WITH</code>, and runs it in a transaction the database engine itself holds read-only. Writing through <code>/execute</code> stays off until an administrator turns on <strong>Options → Allow writing</strong>.</p>
+      </div>
+      <div class="card">
+        <h3>An API key on every call</h3>
+        <p>32 random bytes, generated on first run and compared in constant time. <strong>New Key</strong> rotates it without a restart, and a caller sending too many wrong keys is refused with <code>429</code> for a while.</p>
+      </div>
+      <div class="card">
+        <h3>Secrets encrypted at rest</h3>
+        <p>Database passwords and the API key are encrypted with a key that never leaves the machine and is kept outside the data folder — DPAPI on Windows, an owner-only key file on Linux. A copy of the data folder alone opens nothing.</p>
+      </div>
+      <div class="card">
+        <h3>A log of every request</h3>
+        <p>Every request, served or refused, is appended to the request log. The statement is written; bound parameter values never are.</p>
+      </div>
+      <div class="card">
+        <h3>Updates you approve</h3>
+        <p>About once a day it asks GitHub for a newer release and shows a banner. <strong>Update now</strong> checks the installer against the release's checksums and starts it only once you agree. On Linux, <code>apt</code> does the updating.</p>
+      </div>
+      <div class="card">
+        <h3>Cloudflare Access, optionally</h3>
+        <p>Put Cloudflare Access in front of the hostname so callers are authenticated at Cloudflare's edge first. With Cloudflare login set up in ByteBridge, a valid session from it is accepted in place of the key.</p>
+      </div>
+      <div class="card">
+        <h3>A tunnel made for you, optionally</h3>
+        <p><strong>Connect to ByteBalance</strong> in the window, or <code>enroll</code> on the command line, lets ByteBalanceTech make the tunnel. ByteBridge is a standalone product; this is an optional integration.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <h2>Install</h2>
+    <p class="intro">Requires 64-bit Windows 8.1 or later, or a 64-bit Linux with systemd; and a Firebird 4 or PostgreSQL server for it to reach.</p>
+
+    <div class="cols">
+      <div>
+        <h3>Windows</h3>
+        <p>Grab an installer from the <a href="https://github.com/kenanwahbeh/ByteBridge/releases/latest">latest release</a>. All of them are per-machine and ask for administrator rights once.</p>
+        <div class="table">
+          <table class="stack">
+            <thead><tr><th>File</th><th>.NET</th><th>Use it when</th></tr></thead>
+            <tbody>
+              <tr><td><code>…-x64-setup.exe</code></td><td data-label=".NET">included</td><td><strong>Start here.</strong> Normal desktop install.</td></tr>
+              <tr><td><code>…-x64.msi</code></td><td data-label=".NET">included</td><td>Group Policy, Intune, or a scripted rollout.</td></tr>
+              <tr><td><code>…-x64-framework-setup.exe</code></td><td data-label=".NET">fetched</td><td>Much smaller; Setup installs the runtime if the machine lacks it.</td></tr>
+              <tr><td><code>…-x64-framework.msi</code></td><td data-label=".NET">required</td><td>Scripted rollout where the runtime is managed separately.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Both <code>.exe</code> installers also offer to install <code>cloudflared</code>. Pointing it at a tunnel still needs your own token.</p>
+        <p>Silent install:</p>
+        <div class="code"><pre><code>ByteBridge-&lt;version&gt;-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART</code></pre></div>
+        <div class="code"><pre><code>msiexec /i ByteBridge-&lt;version&gt;-x64.msi /quiet /norestart</code></pre></div>
+      </div>
+
+      <div>
+        <h3>Linux (Debian and Ubuntu)</h3>
+        <p>Add the signed apt repository once; after that <code>apt install</code> and <code>apt upgrade</code> do the rest.</p>
+        <div class="code"><pre><code>sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://kenanwahbeh.github.io/ByteBridge/bytebridge.asc | sudo tee /etc/apt/keyrings/bytebridge.asc &gt;/dev/null
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/bytebridge.asc] https://kenanwahbeh.github.io/ByteBridge stable main" | sudo tee /etc/apt/sources.list.d/bytebridge.list
+sudo apt update
+sudo apt install bytebridge</code></pre></div>
+        <p>The signing key's fingerprint is on <a href="../apt/">the apt repository's page</a>; compare it with <code>gpg --show-keys /etc/apt/keyrings/bytebridge.asc</code>.</p>
+        <p>Other distributions: each release also carries a <code>linux-x64</code> tarball with <code>install.sh</code>, and the <code>.deb</code> itself, with checksums in <code>SHA256SUMS-linux.txt</code>. See the <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/getting-started/linux.md">Linux guide</a>.</p>
+      </div>
+    </div>
+
+    <h3>Check where a file was built</h3>
+    <p>Every release file carries a signed build attestation, which the GitHub CLI checks before you run anything:</p>
+    <div class="code"><pre><code>gh attestation verify ByteBridge-&lt;version&gt;-x64-setup.exe --repo kenanwahbeh/ByteBridge</code></pre></div>
+  </div>
+</section>
+
+<section id="quick-start">
+  <div class="wrap">
+    <h2>Quick start</h2>
+    <p class="intro">Not a developer? The <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/guide/README.md">picture guide</a> walks through the same steps with screenshots. In the app, <strong>Help → User Guide</strong> (or <kbd>F1</kbd>) opens it.</p>
+    <ol class="steps">
+      <li>
+        <h3>Add a database</h3>
+        <p>Choose <strong>File → New Database…</strong>, fill in the server, port, user, password and database path or alias, and use <strong>Test Connection</strong> before saving. On Linux, use <code>bytebridge db add</code>.</p>
+      </li>
+      <li>
+        <h3>Check it is Online</h3>
+        <p>A connection saved after a successful test is Online straight away, and only Online connections answer requests.</p>
+      </li>
+      <li>
+        <h3>Check the gateway and copy the key</h3>
+        <p>The status line should read <em>● Answering — http://127.0.0.1:8080 · Service: running</em>. Open <strong>Web Server</strong> and press <strong>Copy API Key</strong>. On Linux: <code>bytebridge status</code> and <code>bytebridge key show</code>.</p>
+      </li>
+      <li>
+        <h3>Start the tunnel</h3>
+        <div class="code"><pre><code>cloudflared tunnel --url http://127.0.0.1:8080</code></pre></div>
+        <p>For a named tunnel with your own hostname, see <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/GATEWAY.md">GATEWAY.md</a>.</p>
+      </li>
+      <li>
+        <h3>Confirm the whole path</h3>
+        <p><code>/health</code> needs no key, so it is the first thing to try:</p>
+        <div class="code"><pre><code>curl https://&lt;your-hostname&gt;/health</code></pre></div>
+      </li>
+      <li>
+        <h3>Query</h3>
+        <div class="code"><pre><code>curl -X POST https://&lt;your-hostname&gt;/query \
+  -H "X-API-Key: &lt;your key&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{ "database": "Sales", "sql": "SELECT ID, NAME FROM CUSTOMERS WHERE ID = @id", "parameters": { "id": 42 } }'</code></pre></div>
+        <p>Send values in <code>parameters</code>, never concatenated into <code>sql</code>: they are bound as database parameters, so a value cannot become SQL.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section id="api">
+  <div class="wrap">
+    <h2>The API</h2>
+    <p class="intro">The key goes in <code>X-API-Key</code>, or as <code>Authorization: Bearer</code>.</p>
+    <div class="table">
+      <table>
+        <thead><tr><th>Method</th><th>Path</th><th>Key</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>GET</code></td><td><code>/health</code></td><td>no</td><td>Liveness, to test the tunnel. Returns no data from any database.</td></tr>
+          <tr><td><code>GET</code></td><td><code>/databases</code></td><td>yes</td><td>The configured connections.</td></tr>
+          <tr><td><code>GET</code></td><td><code>/stats</code></td><td>key only</td><td>Request counts per connection, the running version, and whether a newer release exists.</td></tr>
+          <tr><td><code>POST</code></td><td><code>/query</code></td><td>yes</td><td>Runs a <code>SELECT</code> / <code>WITH</code> and returns rows.</td></tr>
+          <tr><td><code>POST</code></td><td><code>/execute</code></td><td>yes</td><td>Changes data or structure — only while <strong>Allow writing</strong> is on, otherwise <code>403</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Request and response shapes, the type mapping, status codes and troubleshooting are in the <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/reference/api-reference.md">API reference</a> and <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/GATEWAY.md">GATEWAY.md</a>.</p>
+  </div>
+</section>
+
+<section id="cli">
+  <div class="wrap">
+    <h2>Command line</h2>
+    <p class="intro">On Linux there is no window: everything is done with the <code>bytebridge</code> command. On Windows Server Core, the service executable doubles as the same admin tool: <code>ByteBridge.Service.exe &lt;command&gt;</code>. Changes apply within a few seconds, without restarting the service.</p>
+    <div class="code"><pre><code>bytebridge status
+bytebridge db add --name Sales --server 127.0.0.1 --path /data/sales.fdb --user SYSDBA --password secret
+bytebridge key show
+bytebridge port 8080</code></pre></div>
+    <div class="table">
+      <table>
+        <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>status</code></td><td>Show the listener and the databases.</td></tr>
+          <tr><td><code>on</code> | <code>off</code></td><td>Whether the gateway should listen.</td></tr>
+          <tr><td><code>port &lt;number&gt;</code></td><td>Change the listening port.</td></tr>
+          <tr><td><code>key show</code> | <code>key new</code></td><td>Print the API key, or replace it.</td></tr>
+          <tr><td><code>lockout show|on|off|set</code></td><td>The limit on failed keys from one caller.</td></tr>
+          <tr><td><code>db list|add|enable|disable|remove</code></td><td>Manage database connections; <code>--type firebird|postgresql</code> picks the engine.</td></tr>
+          <tr><td><code>oauth show|set|on|off|edge</code></td><td>Cloudflare Access login settings.</td></tr>
+          <tr><td><code>enroll</code>, <code>claim</code>, <code>enrollment</code>, <code>sync-key</code>, <code>unenroll</code></td><td>Connecting to ByteBalanceTech for a tunnel, and undoing it.</td></tr>
+          <tr><td><code>update [check]|status|on|off</code></td><td>Look for a newer release now, show the last result, or turn the daily check on or off. It only checks; it never installs anything.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><code>bytebridge --help</code> lists everything.</p>
+  </div>
+</section>
+
+<section id="security">
+  <div class="wrap">
+    <h2>Security model</h2>
+    <p class="intro">The tunnel makes the gateway reachable from the public internet, so treat the API key as a database credential.</p>
+    <ul class="checks">
+      <li>Every endpoint except <code>/health</code> requires the key. Rotating it with <strong>New Key</strong> takes effect within a few seconds, and every client still sending the old one is refused from then on.</li>
+      <li>The listener binds to <code>127.0.0.1</code> only, and a request body over 1 MB is refused.</li>
+      <li><code>/query</code> refuses anything that is not a <code>SELECT</code> or <code>WITH</code>, and the database engine holds its transaction read-only. Statements that move a sequence (<code>GEN_ID</code> with a step other than 0, <code>NEXT VALUE FOR</code>, <code>nextval</code>, <code>setval</code>) are refused as well.</li>
+      <li>While <strong>Allow writing</strong> is on, anyone holding the key can change and delete data and change the structure of your databases. Leave it off unless you need it, and turn it off again afterwards.</li>
+      <li>Anything holding the key can read whatever the database user of an Online connection can read. For sensitive data, put <a href="https://developers.cloudflare.com/cloudflare-one/policies/access/">Cloudflare Access</a> in front of the hostname as well.</li>
+      <li>The data folder is locked down: <code>C:\ProgramData\ByteBridge</code> to Administrators and the service account, <code>/var/lib/bytebridge</code> to the service account only. A full-machine image still holds both the data and its key, so treat disk clones and VM snapshots as credentials too.</li>
+    </ul>
+    <p>The details are in the <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/reference/security.md">security reference</a>; to report a vulnerability, see <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/SECURITY.md">SECURITY.md</a>.</p>
+  </div>
+</section>
+
+<section id="links">
+  <div class="wrap">
+    <h2>Documentation and links</h2>
+    <ul class="links">
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/releases"><strong>Releases</strong><span>Installers, Linux packages and checksums</span></a></li>
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/README.md"><strong>Documentation</strong><span>Installation, reference and troubleshooting</span></a></li>
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/guide/README.md"><strong>Picture guide</strong><span>Step by step, no technical background needed</span></a></li>
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/reference/cloudflare-tunnel.md"><strong>Cloudflare Tunnel</strong><span>Reaching the gateway from outside</span></a></li>
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/CHANGELOG.md"><strong>Changelog</strong><span>What changed in each release</span></a></li>
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/ROADMAP.md"><strong>Roadmap</strong><span>What is being worked on, and what is not</span></a></li>
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/CONTRIBUTING.md"><strong>Contributing</strong><span>The build, the tests and the conventions</span></a></li>
+      <li><a href="https://github.com/kenanwahbeh/ByteBridge/discussions"><strong>Discussions</strong><span>Questions and ideas</span></a></li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>ByteBridge is one of the projects of <a href="https://bytebalancetech.com">Byte Balance Technology</a>. It is free and stays free; you can <a href="https://github.com/kenanwahbeh/ByteBridge/blob/main/docs/about/support-the-project.md">support the project</a> if it is useful to you.</p>
+    <p><a href="../" hreflang="ar" lang="ar">هذه الصفحة بالعربية</a></p>
+  </div>
+</footer>
+
+<script src="../site.js"></script>
+</body>
+</html>
